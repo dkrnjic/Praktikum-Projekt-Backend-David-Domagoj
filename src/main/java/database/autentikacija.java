@@ -16,8 +16,8 @@ public class autentikacija {
             izbor = myObj.nextInt(); // Read user input
             switch (izbor) {
                 case 1:
-                    boolean authenticated = autentikacija.authenticate(username, password);
-                    if (authenticated) {
+                    String authenticated = autentikacija.authenticate(username, password);
+                    if (authenticated != null) {
                         System.out.println("Autentikacija uspjesna!");
                     } else {
                         System.out.println("Autentikacija neuspjesna!");
@@ -36,8 +36,7 @@ public class autentikacija {
         } while (izbor != 0);
     }
 
-    public static boolean authenticate(String username, String password) {
-        boolean authenticated = false;
+    public static String authenticate(String username, String password) {
         try (Connection conn = DriverManager.getConnection(DbConfig.url);
                 PreparedStatement stmt = conn
                         .prepareStatement("select password from dbo.Administrator where Administrator.Username = ?");) {
@@ -46,14 +45,20 @@ public class autentikacija {
 
             if (rs.next()) {
                 String passwordHash = rs.getString("Password");
-                return BCrypt.checkpw(password, passwordHash);
+                boolean authenticated = BCrypt.checkpw(password, passwordHash);
+                if (authenticated) {
+                    // return the URL to which you want to redirect the user
+                    return "http://localhost:3000/dashboard";
+                } else {
+                    return null;
+                }
             } else {
-                return false;
+                return null;
             }
         } catch (SQLException e) {
             // Log the error and return an error message to the caller
             System.err.println("Error autentikacije usera: " + e.getMessage());
-            return false;
+            return null;
         }
     }
 

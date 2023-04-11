@@ -11,8 +11,8 @@ import java.time.Instant;
 public class DodajOtkup {
 
     public static void main(String[] args) {
-        int otkupKorisnikId = 2;
-        int zitaricaId = 1;
+        int otkupKorisnikId = 1;
+        int zitaricaId = 2;
         float kolicina = 550;
         Timestamp time = Timestamp.from(Instant.now());
         float primjesa = 2.1f;

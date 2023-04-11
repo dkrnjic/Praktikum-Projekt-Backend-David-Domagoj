@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import database.DbConfig;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.http.HttpHeaders;
+import java.net.URI;
 
 @RestController
 public class AuthenticationController {
@@ -23,18 +25,15 @@ public class AuthenticationController {
 
         boolean authenticated = authenticateUser(username, password);
 
-        Map<String, Object> response = new HashMap<>();
+        // Map<String, Object> response = new HashMap<>();
         if (authenticated) {
-            response.put("success", true);
-            System.out.println("uspih");
-            response.put("message", "Authentication successful");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setLocation(URI.create("http://127.0.0.1:5173/home"));
+            return new ResponseEntity<>(headers, HttpStatus.FOUND);
         } else {
-            response.put("success", false);
-            System.out.println("neuspih");
-            response.put("message", "Invalid username or password");
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     private boolean authenticateUser(String username, String password) {
