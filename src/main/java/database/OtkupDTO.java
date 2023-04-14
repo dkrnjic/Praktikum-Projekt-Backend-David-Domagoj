@@ -30,7 +30,7 @@ public class OtkupDTO {
 
     public int getKlijentId() {
         try (Connection conn = DriverManager.getConnection(DbConfig.url);
-                CallableStatement stmt = conn.prepareCall("{call GetFarmerIdByFullName(?, ?)}")) {
+                CallableStatement stmt = conn.prepareCall("{call GetFarmerIdByFullName1(?, ?)}")) {
 
             parts = ime.split(" ");
             firstName = parts[0];
@@ -56,7 +56,7 @@ public class OtkupDTO {
 
     public int getZitaricaId() {
         try (Connection conn = DriverManager.getConnection(DbConfig.url);
-                CallableStatement stmt = conn.prepareCall("{call GetCropsIdByFullName(?)}")) {
+                CallableStatement stmt = conn.prepareCall("{call GetCropsIdByFullName2(?)}")) {
 
             stmt.setString(1, tipZitarice);
             stmt.execute();

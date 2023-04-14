@@ -25,11 +25,12 @@ public class ProdajaDTO {
 
     public int getKlijentId() {
         try (Connection conn = DriverManager.getConnection(DbConfig.url);
-                CallableStatement stmt = conn.prepareCall("{call GetClientIdByFullName(?, ?)}")) {
+                CallableStatement stmt = conn.prepareCall("{call GetClientIdByFullName2(?, ?)}")) {
 
             parts = ime.split(" ");
             firstName = parts[0];
             lastName = parts[1];
+
             stmt.setString(1, firstName);
             stmt.setString(2, lastName);
             stmt.execute();
@@ -37,6 +38,7 @@ public class ProdajaDTO {
             if (rs.next()) {
                 id = rs.getInt("KlijentID");
             }
+            System.out.println(id + "BTJJJJJJJJJJJJJJJJJJJJ");
 
         } catch (SQLException se) {
             // Handle errors for JDBC
@@ -51,8 +53,9 @@ public class ProdajaDTO {
 
     public int getZitaricaId() {
         try (Connection conn = DriverManager.getConnection(DbConfig.url);
-                CallableStatement stmt = conn.prepareCall("{call GetCropsIdByFullName(?)}")) {
+                CallableStatement stmt = conn.prepareCall("{call GetCropsIdByFullName2(?)}")) {
 
+            System.out.println(tipZitarice);
             stmt.setString(1, tipZitarice);
             stmt.execute();
             ResultSet rs = stmt.getResultSet();

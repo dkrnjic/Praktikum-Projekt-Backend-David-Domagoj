@@ -2,8 +2,10 @@ package com.example.demo;
 
 import database.DbConfig;
 import database.Farmer;
+import database.FarmeriImena;
 import database.Klijent;
 import database.KlijentDTO;
+import database.KlijentiImena;
 import database.Otkup;
 import database.OtkupDTO;
 import database.PoljoprivrednikDTO;
@@ -11,6 +13,7 @@ import database.Prodaja;
 import database.ProdajaDTO;
 import database.Zitarica;
 import database.ZitaricaDTO;
+import database.ZitariceIme;
 
 import org.json.JSONObject;
 import org.springframework.boot.SpringApplication;
@@ -107,7 +110,7 @@ public class DemoApplication {
 			while (rs.next()) {
 				Integer id = rs.getInt("Id");
 				String ime = rs.getString("OtkupKorisnikIme");
-				ime += rs.getString("OtkupKorisnikPrezime");
+				ime += " " + rs.getString("OtkupKorisnikPrezime");
 				String tip = rs.getString("ZitariceIme");
 				int kolicina = rs.getInt("Kolicina");
 				String vrijeme = rs.getString("Time");
@@ -163,7 +166,7 @@ public class DemoApplication {
 			while (rs.next()) {
 				Integer id = rs.getInt("Id");
 				String ime = rs.getString("KlijentIme");
-				ime += rs.getString("KlijentPrezime");
+				ime += " " + rs.getString("KlijentPrezime");
 				String tip = rs.getString("ZitaricaIme");
 				int kolicina = rs.getInt("Kolicina");
 				String vrijeme = rs.getString("Time");
@@ -249,6 +252,12 @@ public class DemoApplication {
 	public ResponseEntity<String> dodajProdaju(@RequestBody ProdajaDTO prodaja) {
 		try (Connection conn = DriverManager.getConnection(DbConfig.url);
 				CallableStatement stmt = conn.prepareCall("{call DodajProdaju(?, ?, ?, ?, ?)}")) {
+			/*
+			 * System.out.println(prodaja.getKlijentId());
+			 * System.out.println(prodaja.getKolicina());
+			 * System.out.println(prodaja.getKolicina());
+			 * System.out.println(prodaja.getCijena());
+			 */
 
 			Timestamp time = Timestamp.from(Instant.now());
 			stmt.setInt(1, prodaja.getKlijentId());
@@ -256,22 +265,35 @@ public class DemoApplication {
 			stmt.setInt(3, prodaja.getKolicina());
 			stmt.setTimestamp(4, new Timestamp(time.getTime()));
 			stmt.setFloat(5, prodaja.getCijena());
-
 			stmt.executeUpdate();
 			return new ResponseEntity<>("Prodaja uspjesno dodana u database", HttpStatus.OK);
 		} catch (SQLException e) {
+			System.out.println(e.getMessage());
 			return new ResponseEntity<>("Error dodavanja Prodaje u database: " + e.getMessage(),
+
 					HttpStatus.INTERNAL_SERVER_ERROR);
+
 		}
 	}
 
 	@PostMapping("/dodajOtkup")
 	@CrossOrigin(origins = "*", allowedHeaders = "*")
 	public ResponseEntity<String> dodajOtkup(@RequestBody OtkupDTO otkup) {
+
 		try (Connection conn = DriverManager.getConnection(DbConfig.url);
 				CallableStatement stmt = conn.prepareCall("{call DodajOtkup(?, ?, ?, ?, ?,?,?)}")) {
-
+			System.out.println("USOOOOOOOOO2");
 			Timestamp time = Timestamp.from(Instant.now());
+
+			/*
+			 * System.out.println(otkup.getKlijentId());
+			 * System.out.println(otkup.getKolicina());
+			 * System.out.println(otkup.getKolicina());
+			 * System.out.println(otkup.getPrimjesa());
+			 * System.out.println(otkup.getVlaga());
+			 * System.out.println(otkup.getCijena());
+			 */
+
 			stmt.setInt(1, otkup.getKlijentId());
 			stmt.setInt(2, otkup.getZitaricaId());
 			stmt.setInt(3, otkup.getKolicina());
@@ -283,9 +305,78 @@ public class DemoApplication {
 			stmt.executeUpdate();
 			return new ResponseEntity<>("Otkup uspjesno dodan u database", HttpStatus.OK);
 		} catch (SQLException e) {
+			System.out.println(e.getMessage());
 			return new ResponseEntity<>("Error dodavanja Otkupa u database: " + e.getMessage(),
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
+	}
+
+	@GetMapping("/imenaFarmera")
+	@CrossOrigin(origins = "*", allowedHeaders = "*")
+	public ResponseEntity<String> getPunaImenaFarmera() {
+		List<FarmeriImena> farmeriImena = new ArrayList<>();
+		try (Connection conn = DriverManager.getConnection(DbConfig.url);
+				PreparedStatement stmt = conn.prepareStatement("SELECT Ime,Prezime FROM OtkupKorisnik");
+				ResultSet rs = stmt.executeQuery()) {
+			while (rs.next()) {
+
+				String ime = rs.getString("Ime");
+				String prezime = rs.getString("Prezime");
+				FarmeriImena farmeriIme = new FarmeriImena(ime, prezime);
+				farmeriImena.add(farmeriIme);
+			}
+		} catch (SQLException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+		Gson gson = new Gson();
+		String json = gson.toJson(farmeriImena);
+		System.out.println("GET farmeriImena:  " + i++);
+
+		return new ResponseEntity<String>(json, HttpStatus.OK);
+	}
+
+	@GetMapping("/imenaKlijenta")
+	@CrossOrigin(origins = "*", allowedHeaders = "*")
+	public ResponseEntity<String> getPunaImenaKlijenta() {
+		List<KlijentiImena> klijentiImena = new ArrayList<>();
+		try (Connection conn = DriverManager.getConnection(DbConfig.url);
+				PreparedStatement stmt = conn.prepareStatement("SELECT Ime,Prezime FROM Klijenti");
+				ResultSet rs = stmt.executeQuery()) {
+			while (rs.next()) {
+
+				String ime = rs.getString("Ime");
+				String prezime = rs.getString("Prezime");
+				KlijentiImena klijentIme = new KlijentiImena(ime, prezime);
+				klijentiImena.add(klijentIme);
+			}
+		} catch (SQLException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+		Gson gson = new Gson();
+		String json = gson.toJson(klijentiImena);
+
+		return new ResponseEntity<String>(json, HttpStatus.OK);
+	}
+
+	@GetMapping("/imenaZitarica")
+	@CrossOrigin(origins = "*", allowedHeaders = "*")
+	public ResponseEntity<String> getImenaZitarica() {
+		List<ZitariceIme> zitariceImena = new ArrayList<>();
+		try (Connection conn = DriverManager.getConnection(DbConfig.url);
+				PreparedStatement stmt = conn.prepareStatement("SELECT Ime FROM Zitarice");
+				ResultSet rs = stmt.executeQuery()) {
+			while (rs.next()) {
+				String ime = rs.getString("Ime");
+				ZitariceIme zitariceIme = new ZitariceIme(ime);
+				zitariceImena.add(zitariceIme);
+			}
+		} catch (SQLException e) {
+			System.out.println("Error: " + e.getMessage());
+		}
+		Gson gson = new Gson();
+		String json = gson.toJson(zitariceImena);
+
+		return new ResponseEntity<String>(json, HttpStatus.OK);
 	}
 
 }
