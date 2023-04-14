@@ -1,18 +1,18 @@
 package database;
 
-public class Farmer {
+public class Klijent {
     private int id;
     private String ime;
     private String prezime;
     private String address;
-    private float debt;
+    private float bought;
 
-    public Farmer(int id, String ime, String prezime, String address, float debt) {
+    public Klijent(int id, String ime, String prezime, String address, float bought) {
         this.id = id;
         this.ime = ime;
         this.prezime = prezime;
         this.address = address;
-        this.debt = debt;
+        this.bought = bought;
     }
 
     // getters and setters
